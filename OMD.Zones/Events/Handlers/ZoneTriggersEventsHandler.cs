@@ -23,13 +23,13 @@ public sealed class ZoneTriggersEventsHandler(IEventsService eventsService) : Ev
 
     private void Events_OnTriggerEntered(Zone zone, Collider other)
     {
-        EventsService.Logger.LogInformation("Something {Name}|{Tag} entered zone \"{ZoneName}\"",
+        EventsService.Logger.LogDebug("Something \"{Name}\" | \"{Tag}\" entered zone \"{ZoneName}\"",
             other.name, other.tag, zone.Name);
     }
 
     private void Events_OnTriggerExited(Zone zone, Collider other)
     {
-        EventsService.Logger.LogInformation("Something {Name}|{Tag} exited zone \"{ZoneName}\"",
+        EventsService.Logger.LogDebug("Something \"{Name}\" | \"{Tag}\" exited zone \"{ZoneName}\"",
             other.name, other.tag, zone.Name);
     }
 }
