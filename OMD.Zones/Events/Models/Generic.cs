@@ -1,7 +1,7 @@
 ﻿using OMD.Zones.Models.Zones;
 using OpenMod.Core.Eventing;
 using OpenMod.Unturned.Players;
-using SDG.Unturned;
+using OpenMod.Unturned.Vehicles;
 using GameObject = UnityEngine.GameObject;
 
 namespace OMD.Zones.Events;
@@ -16,9 +16,9 @@ public class UnturnedPlayerTriggeredZoneEvent(Zone zone, UnturnedPlayer player) 
     public readonly UnturnedPlayer Player = player;
 }
 
-public class VehicleTriggeredZoneEvent(Zone zone, InteractableVehicle vehicle) : ZoneTriggeredEvent(zone)
+public class UnturnedVehicleTriggeredZoneEvent(Zone zone, UnturnedVehicle vehicle) : ZoneTriggeredEvent(zone)
 {
-    public readonly InteractableVehicle Vehicle = vehicle;
+    public readonly UnturnedVehicle Vehicle = vehicle;
 }
 
 public class GameObjectTriggeredZoneEvent(Zone zone, GameObject @object) : ZoneTriggeredEvent(zone)
