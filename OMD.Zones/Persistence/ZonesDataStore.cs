@@ -1,4 +1,5 @@
 ﻿using Cysharp.Threading.Tasks;
+using OMD.Events.Models;
 using OMD.Zones.Data;
 using OMD.Zones.Models.Zones;
 using OpenMod.Core.Persistence;
@@ -8,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine.Rendering;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
@@ -54,8 +56,10 @@ internal sealed class ZonesDataStore
 
         foreach (var zoneType in zoneTypes)
         {
-            serializerBuilder.WithTagMapping($"tag:yaml.org,2002:{zoneType.Name.ToLower()}", zoneType);
-            deserializerBuilder.WithTagMapping($"tag:yaml.org,2002:{zoneType.Name.ToLower()}", zoneType);
+            var tag = $"tag:yaml.org,2002:{zoneType.Name}";
+
+            serializerBuilder.WithTagMapping(tag, zoneType);
+            deserializerBuilder.WithTagMapping(tag, zoneType);
         }
 
         _filePath = Path.Combine(workingDirectory, "zones.data.yaml");
@@ -189,10 +193,15 @@ internal sealed class ZonesDataStore
     }
 
     private IEnumerable<Type> FindZoneTypes()
-    {
-        var currentAssembly = typeof(ZonesDataStore).Assembly;
+    {        
         var targetType = typeof(Zone);
-        var targetTypes = currentAssembly.GetTypes().Where(t => !t.IsAbstract && !t.IsGenericType && targetType.IsAssignableFrom(t))!;
+        var targetTypes = AppDomain.CurrentDomain.GetAssemblies().SelectMany(assembly => {
+            try { return assembly.GetTypes(); }
+            catch (Exception) { return []; }
+        }).Where(type => {
+            try { return !type.IsAbstract && targetType.IsAssignableFrom(type); }
+            catch (Exception) { return false; }
+        });
 
         foreach (var type in targetTypes)
             Console.WriteLine($"Zone type: {type.FullName}");
