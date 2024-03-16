@@ -22,7 +22,10 @@ public abstract class Zone
 
     public virtual Vector3 Position {
         get {
-            return Instance?.transform.position.ToSystemVector() ?? _position;
+            if (Instance == null)
+                return _position;
+
+            return Instance.transform.position.ToSystemVector();
         }
         set {
             _position = value;
@@ -40,7 +43,8 @@ public abstract class Zone
 
     internal void Init()
     {
-        if (Instance != null) return;
+        if (Instance != null)
+            return;
 
         Instance = Object.Instantiate(Prefab.Value);
 
@@ -72,7 +76,8 @@ public abstract class Zone
     public abstract bool IsPointInside(Vector3 point);
 }
 
-public abstract class Zone<TTriggers> : Zone where TTriggers : ZoneTriggers
+public abstract class Zone<TTriggers> : Zone
+    where TTriggers : ZoneTriggers
 {
     protected new TTriggers Triggers { get; private set; } = null!;
 

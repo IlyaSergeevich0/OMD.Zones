@@ -1,9 +1,11 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Cysharp.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using OMD.Zones.Main;
 using OMD.Zones.Models.Zones;
 using OMD.Zones.Persistence;
 using OpenMod.API.Ioc;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -12,26 +14,34 @@ namespace OMD.Zones.Services;
 [ServiceImplementation(Lifetime = ServiceLifetime.Singleton)]
 public sealed class ZonesService : IZonesService, IAsyncDisposable
 {
+    public IReadOnlyList<Zone> Zones => _dataStore.Zones;
+
     public Guid GUID { get; } = Guid.NewGuid();
 
     private bool _isInitialized = false;
 
     private ZonesDataStore _dataStore = null!;
 
-    public async Task Initialize(ZonesPlugin plugin)
+    public Task Initialize(ZonesPlugin plugin)
     {
-        if (_isInitialized)
-            throw new InvalidOperationException("Service has already been initialized!");
+        async UniTask InnerTask()
+        {
+            if (_isInitialized)
+                throw new InvalidOperationException("Service has already been initialized!");
 
-        _dataStore = new ZonesDataStore(plugin.WorkingDirectory);
+            _dataStore = new ZonesDataStore(plugin.WorkingDirectory);
 
-        Console.WriteLine($"After initialization: {_dataStore.Instance is null}");
+            await _dataStore.Load();
 
-        await _dataStore.Load();
+            await UniTask.SwitchToMainThread();
 
-        Console.WriteLine($"After load: {_dataStore.Instance is null}");
+            foreach (var zone in _dataStore.Zones)
+                zone.Init();
 
-        _isInitialized = true;
+            _isInitialized = true;
+        }
+
+        return InnerTask().AsTask();
     }
 
     public async ValueTask DisposeAsync()

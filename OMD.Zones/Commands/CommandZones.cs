@@ -5,6 +5,7 @@ using OpenMod.API.Users;
 using OpenMod.Core.Commands;
 using OpenMod.Unturned.Commands;
 using OpenMod.Unturned.Users;
+using SDG.Unturned;
 using System;
 
 namespace OMD.Zones.Commands;
@@ -15,7 +16,6 @@ public sealed class CommandZones(IZonesService zonesService, IUnturnedUserDirect
 {
     protected override async UniTask OnExecuteAsync()
     {
-        Console.WriteLine($"Command service: {zonesService.GUID}");
         var player = unturnedUserDirectory.FindUser(Context.Actor.Id, UserSearchMode.FindById)!.Player;
 
         await zonesService.Add(new SphericalZone {

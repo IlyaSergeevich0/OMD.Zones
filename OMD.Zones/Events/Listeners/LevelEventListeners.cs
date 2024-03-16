@@ -5,7 +5,6 @@ using OpenMod.API.Eventing;
 using OpenMod.API.Plugins;
 using OpenMod.Core.Eventing;
 using OpenMod.Unturned.Level.Events;
-using System;
 using System.Threading.Tasks;
 
 namespace OMD.Zones.Events.Listeners;
@@ -17,8 +16,6 @@ public sealed class LevelEventListeners(IZonesService zonesService, IPluginAcces
     public Task HandleEventAsync(object? sender, UnturnedPostLevelLoadedEvent @event)
     {
         var plugin = pluginAccessor.Instance!;
-
-        Console.WriteLine($"Event service: {zonesService.GUID}");
 
         zonesService.Initialize(plugin);
 

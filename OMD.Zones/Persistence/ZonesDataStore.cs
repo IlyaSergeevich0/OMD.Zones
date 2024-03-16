@@ -1,5 +1,4 @@
 ﻿using Cysharp.Threading.Tasks;
-using OMD.Events.Models;
 using OMD.Zones.Data;
 using OMD.Zones.Models.Zones;
 using OpenMod.Core.Persistence;
@@ -9,7 +8,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using UnityEngine.Rendering;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
@@ -35,7 +33,6 @@ internal sealed class ZonesDataStore
 
     internal ZonesDataStore(string workingDirectory)
     {
-        Console.WriteLine($"Inside begin: {_instance is null}");
         var typeConverters = new IYamlTypeConverter[] {
             new YamlVector3TypeConverter()
         };
@@ -65,26 +62,17 @@ internal sealed class ZonesDataStore
         _filePath = Path.Combine(workingDirectory, "zones.data.yaml");
         _serializer = serializerBuilder.Build();
         _deserializer = deserializerBuilder.Build();
-        Console.WriteLine($"Inside end: {_instance is null}");
     }
 
     internal async Task Load()
     {
-        Console.WriteLine($"FileExists: {File.Exists(_filePath)}");
-
         if (!File.Exists(_filePath))
             return;
 
         var encodedData = await InternalRetry.DoAsync(() => File.ReadAllBytes((_filePath)), TimeSpan.FromMilliseconds(1), 5);
         var serializedYaml = Encoding.UTF8.GetString(encodedData);
 
-        var result = _deserializer.Deserialize<ZonesStore>(serializedYaml);
-
-        Console.WriteLine($"Result: {result is null}");
-
-        _instance = result!;
-
-        Console.WriteLine($"Instance after all: {_instance is null}");
+        _instance = _deserializer.Deserialize<ZonesStore>(serializedYaml); ;
     }
 
     internal Task Save()
@@ -117,12 +105,6 @@ internal sealed class ZonesDataStore
         {
             if (zone is null)
                 throw new ArgumentNullException(nameof(zone));
-
-            if (_instance is null)
-                Console.WriteLine("Instance is null!");
-
-            if (_instance!.Zones is null)
-                Console.WriteLine("Zones is null!");
 
             if (_instance!.Zones!.Exists(z => z.Name.Equals(zone.Name, StringComparison.OrdinalIgnoreCase)))
                 return false;
@@ -193,7 +175,7 @@ internal sealed class ZonesDataStore
     }
 
     private IEnumerable<Type> FindZoneTypes()
-    {        
+    {
         var targetType = typeof(Zone);
         var targetTypes = AppDomain.CurrentDomain.GetAssemblies().SelectMany(assembly => {
             try { return assembly.GetTypes(); }
@@ -202,9 +184,6 @@ internal sealed class ZonesDataStore
             try { return !type.IsAbstract && targetType.IsAssignableFrom(type); }
             catch (Exception) { return false; }
         });
-
-        foreach (var type in targetTypes)
-            Console.WriteLine($"Zone type: {type.FullName}");
 
         return targetTypes;
     }
