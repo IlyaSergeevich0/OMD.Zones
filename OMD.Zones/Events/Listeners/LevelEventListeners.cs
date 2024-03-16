@@ -13,6 +13,7 @@ namespace OMD.Zones.Events.Listeners;
 public sealed class LevelEventListeners(IZonesService zonesService, IPluginAccessor<ZonesPlugin> pluginAccessor) :
     IEventListener<UnturnedPostLevelLoadedEvent>
 {
+    [EventListener(IgnoreCancelled = true, Priority = EventListenerPriority.Highest)]
     public Task HandleEventAsync(object? sender, UnturnedPostLevelLoadedEvent @event)
     {
         var plugin = pluginAccessor.Instance!;
