@@ -9,7 +9,7 @@ namespace OMD.Zones.Services;
 [Service]
 public interface IZonesService
 {
-    public Guid GUID { get;  }
+    public Guid GUID { get; }
 
     Task Initialize(ZonesPlugin plugin);
 

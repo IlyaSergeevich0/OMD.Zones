@@ -13,26 +13,28 @@ public abstract class ZoneTriggers : MonoBehaviour
 
     public Zone Zone { get; internal set; } = null!;
 
-    public Collider TriggerCollider { get; protected set; } = null!;
+    public Collider Collider { get; protected set; } = null!;
 
     private void OnTriggerEnter(Collider other) => OnTriggerEntered?.Invoke(Zone, other);
 
     private void OnTriggerExit(Collider other) => OnTriggerExited?.Invoke(Zone, other);
 }
 
-public abstract class ZoneTriggers<TCollider> : ZoneTriggers where TCollider : Collider
+public abstract class ZoneTriggers<TCollider> : ZoneTriggers
+    where TCollider : Collider
 {
-    public new TCollider TriggerCollider { get; protected set; } = null!;
+    public new TCollider Collider { get; protected set; } = null!;
 
     private void Awake()
     {
         gameObject.layer = LayerMasks.CLIP;
 
-        foreach (var collider in GetComponents<Collider>()) Destroy(collider);
+        foreach (var collider in GetComponents<Collider>())
+            Destroy(collider);
 
-        TriggerCollider = gameObject.AddComponent<TCollider>();
-        TriggerCollider.isTrigger = true;
-        TriggerCollider.material = null;
-        TriggerCollider.sharedMaterial = null;
+        Collider = gameObject.AddComponent<TCollider>();
+        Collider.isTrigger = true;
+        Collider.material = null;
+        Collider.sharedMaterial = null;
     }
 }

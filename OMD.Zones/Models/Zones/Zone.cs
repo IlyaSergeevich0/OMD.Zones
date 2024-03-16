@@ -10,7 +10,6 @@ namespace OMD.Zones.Models.Zones;
 
 public abstract class Zone
 {
-    [NonSerialized]
     public static readonly Lazy<GameObject> Prefab = new(() => {
         const ushort PrefabItemId = 328;
 
@@ -33,13 +32,13 @@ public abstract class Zone
         }
     }
 
-    [field: NonSerialized] protected ZoneTriggers Triggers { get; private set; } = null!;
+    protected ZoneTriggers Triggers { get; private set; } = null!;
 
-    [NonSerialized] protected GameObject Instance = null!;
+    protected GameObject Instance = null!;
 
-    [NonSerialized] private Vector3 _position;
+    private Vector3 _position;
 
-    internal virtual void Initialize()
+    internal void Init()
     {
         if (Instance != null) return;
 
@@ -47,30 +46,44 @@ public abstract class Zone
 
         Object.DontDestroyOnLoad(Instance);
 
-        foreach (var rigidBody in Instance.GetComponents<Rigidbody>()) Object.Destroy(rigidBody);
+        foreach (var rigidBody in Instance.GetComponents<Rigidbody>())
+            Object.Destroy(rigidBody);
 
         Instance.transform.position = _position.ToUnityVector();
+
+        OnInitialized();
     }
 
-    internal virtual void Destroy()
+    protected virtual void OnInitialized() { }
+
+    internal void Destroy()
     {
-        if (Triggers != null) Object.Destroy(Triggers);
+        if (Triggers != null)
+            Object.Destroy(Triggers);
 
-        if (Instance != null) Object.Destroy(Instance);
+        if (Instance != null)
+            Object.Destroy(Instance);
+
+        OnDestroyed();
     }
+
+    protected virtual void OnDestroyed() { }
 
     public abstract bool IsPointInside(Vector3 point);
 }
 
 public abstract class Zone<TTriggers> : Zone where TTriggers : ZoneTriggers
 {
-    [field: NonSerialized] protected new TTriggers Triggers { get; private set; } = null!;
+    protected new TTriggers Triggers { get; private set; } = null!;
 
-    internal override void Initialize()
+    protected override void OnInitialized()
     {
-        base.Initialize();
-
         Triggers = Instance.AddComponent<TTriggers>();
         Triggers.Zone = this;
+    }
+
+    public override bool IsPointInside(Vector3 point)
+    {
+        return Triggers.Collider.bounds.Contains(point.ToUnityVector());
     }
 }

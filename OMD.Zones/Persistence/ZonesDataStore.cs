@@ -1,11 +1,11 @@
-﻿using OMD.Zones.Data;
+﻿using Cysharp.Threading.Tasks;
+using OMD.Zones.Data;
 using OMD.Zones.Models.Zones;
 using OpenMod.Core.Persistence;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using YamlDotNet.Serialization;
@@ -106,55 +106,86 @@ internal sealed class ZonesDataStore
         return Task.CompletedTask;
     }
 
-    internal async Task<bool> Add<TZone>(TZone zone)
+    internal Task<bool> Add<TZone>(TZone zone)
         where TZone : Zone
     {
-        if (zone is null)
-            throw new ArgumentNullException(nameof(zone));
+        async UniTask<bool> InnerTask()
+        {
+            if (zone is null)
+                throw new ArgumentNullException(nameof(zone));
 
-        if (_instance is null)
-            Console.WriteLine("Instance is null!");
+            if (_instance is null)
+                Console.WriteLine("Instance is null!");
 
-        if (_instance!.Zones is null)
-            Console.WriteLine("Zones is null!");
+            if (_instance!.Zones is null)
+                Console.WriteLine("Zones is null!");
 
-        if (_instance!.Zones!.Exists(z => z.Name.Equals(zone.Name, StringComparison.OrdinalIgnoreCase)))
-            return false;
+            if (_instance!.Zones!.Exists(z => z.Name.Equals(zone.Name, StringComparison.OrdinalIgnoreCase)))
+                return false;
 
-        _instance.Zones.Add(zone);
+            _instance.Zones.Add(zone);
 
-        await Save();
+            await Save();
 
-        return true;
+            await UniTask.SwitchToMainThread();
+
+            zone.Init();
+
+            return true;
+        }
+
+        return InnerTask().AsTask();
     }
 
-    internal async Task<bool> Remove<TZone>(TZone zone)
+    internal Task<bool> Remove<TZone>(TZone zone)
         where TZone : Zone
     {
-        if (zone is null)
-            throw new ArgumentNullException(nameof(zone));
+        async UniTask<bool> InnerTask()
+        {
+            if (zone is null)
+                throw new ArgumentNullException(nameof(zone));
 
-        if (!_instance.Zones.Remove(zone))
-            return false;
+            if (!_instance.Zones.Remove(zone))
+                return false;
 
-        await Save();
+            await Save();
 
-        return true;
+            await UniTask.SwitchToMainThread();
+
+            zone.Destroy();
+
+            return true;
+        }
+
+        return InnerTask().AsTask();
     }
 
-    internal async Task<bool> RemoveByName(string name)
+    internal Task<bool> RemoveByName(string name)
     {
-        if (string.IsNullOrEmpty(name))
-            throw new InvalidOperationException("Name of target zone cannot be null or empty!");
+        async UniTask<bool> InnerTask()
+        {
+            if (string.IsNullOrEmpty(name))
+                throw new InvalidOperationException("Name of target zone cannot be null or empty!");
 
-        var removedCount = _instance.Zones.RemoveAll(z => z.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+            var index = _instance.Zones.FindIndex(z => z.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
 
-        if (removedCount == 0)
-            return false;
+            if (index == -1)
+                return false;
 
-        await Save();
+            var zone = _instance.Zones[index];
 
-        return true;
+            _instance.Zones.RemoveAt(index);
+
+            await Save();
+
+            await UniTask.SwitchToMainThread();
+
+            zone.Destroy();
+
+            return true;
+        }
+
+        return InnerTask().AsTask();
     }
 
     private IEnumerable<Type> FindZoneTypes()
