@@ -3,22 +3,21 @@ using Microsoft.Extensions.DependencyInjection;
 using OMD.Zones.Main;
 using OMD.Zones.Models.Zones;
 using OMD.Zones.Persistence;
+using OMD.Zones.Services.API;
 using OpenMod.API.Ioc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace OMD.Zones.Services;
+namespace OMD.Zones.Services.Models;
 
 [ServiceImplementation(Lifetime = ServiceLifetime.Singleton)]
 public sealed class ZonesService : IZonesService, IAsyncDisposable
 {
+    public bool IsInitialized { get; private set; }
+
     public IReadOnlyList<Zone> Zones => _dataStore.Zones;
-
-    public Guid GUID { get; } = Guid.NewGuid();
-
-    private bool _isInitialized = false;
 
     private ZonesDataStore _dataStore = null!;
 
@@ -26,7 +25,7 @@ public sealed class ZonesService : IZonesService, IAsyncDisposable
     {
         async UniTask InnerTask()
         {
-            if (_isInitialized)
+            if (IsInitialized)
                 throw new InvalidOperationException("Service has already been initialized!");
 
             _dataStore = new ZonesDataStore(plugin.WorkingDirectory);
@@ -36,9 +35,9 @@ public sealed class ZonesService : IZonesService, IAsyncDisposable
             await UniTask.SwitchToMainThread();
 
             foreach (var zone in _dataStore.Zones)
-                zone.Init();
+                zone.Initialize();
 
-            _isInitialized = true;
+            IsInitialized = true;
         }
 
         return InnerTask().AsTask();
@@ -46,7 +45,7 @@ public sealed class ZonesService : IZonesService, IAsyncDisposable
 
     public async ValueTask DisposeAsync()
     {
-        if (!_isInitialized)
+        if (!IsInitialized)
             return;
 
         await _dataStore.Save();
@@ -111,7 +110,7 @@ public sealed class ZonesService : IZonesService, IAsyncDisposable
 
     private void ThrowExceptionIfNotInitialized()
     {
-        if (!_isInitialized)
+        if (!IsInitialized)
             throw new InvalidOperationException("Service is not initialized yet!");
     }
 }

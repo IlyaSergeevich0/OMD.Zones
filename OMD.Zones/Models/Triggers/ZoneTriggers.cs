@@ -36,5 +36,7 @@ public abstract class ZoneTriggers<TCollider> : ZoneTriggers
         Collider.isTrigger = true;
         Collider.material = null;
         Collider.sharedMaterial = null;
+
+        base.Collider = Collider;
     }
 }

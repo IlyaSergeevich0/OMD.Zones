@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using OMD.Zones.Main;
-using OMD.Zones.Services;
+using OMD.Zones.Services.API;
 using OpenMod.API.Eventing;
 using OpenMod.API.Plugins;
 using OpenMod.Core.Eventing;
@@ -14,12 +14,10 @@ public sealed class LevelEventListeners(IZonesService zonesService, IPluginAcces
     IEventListener<UnturnedPostLevelLoadedEvent>
 {
     [EventListener(IgnoreCancelled = true, Priority = EventListenerPriority.Highest)]
-    public Task HandleEventAsync(object? sender, UnturnedPostLevelLoadedEvent @event)
+    public async Task HandleEventAsync(object? sender, UnturnedPostLevelLoadedEvent @event)
     {
         var plugin = pluginAccessor.Instance!;
 
-        zonesService.Initialize(plugin);
-
-        return Task.CompletedTask;
+        await zonesService.Initialize(plugin);
     }
 }

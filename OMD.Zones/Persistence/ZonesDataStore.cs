@@ -1,7 +1,7 @@
 ﻿using Cysharp.Threading.Tasks;
 using OMD.Zones.Data;
 using OMD.Zones.Models.Zones;
-using OpenMod.Core.Persistence;
+using OMD.Zones.Persistence.Converters;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -16,8 +16,8 @@ namespace OMD.Zones.Persistence;
 internal sealed class ZonesDataStore
 {
     internal IReadOnlyList<Zone> Zones => _instance.Zones.AsReadOnly();
-    internal ZonesStore Instance => _instance;
 
+    internal ZonesStore Instance => _instance;
 
     private ZonesStore _instance = new();
 
@@ -34,15 +34,18 @@ internal sealed class ZonesDataStore
     internal ZonesDataStore(string workingDirectory)
     {
         var typeConverters = new IYamlTypeConverter[] {
-            new YamlVector3TypeConverter()
+            new YamlVector3TypeConverter(),
+            new YamlQuaternionTypeConverter()
         };
         var zoneTypes = FindZoneTypes();
 
         var serializerBuilder = new SerializerBuilder()
             .WithNamingConvention(CamelCaseNamingConvention.Instance)
+            .IgnoreFields()
             .DisableAliases();
         var deserializerBuilder = new DeserializerBuilder()
             .WithNamingConvention(CamelCaseNamingConvention.Instance)
+            .IgnoreFields()
             .IgnoreUnmatchedProperties();
 
         foreach (var typeConverter in typeConverters)
@@ -69,24 +72,27 @@ internal sealed class ZonesDataStore
         if (!File.Exists(_filePath))
             return;
 
-        var encodedData = await InternalRetry.DoAsync(() => File.ReadAllBytes((_filePath)), TimeSpan.FromMilliseconds(1), 5);
+        var encodedData = await InternalRetry.DoAsync(() => File.ReadAllBytes(_filePath), TimeSpan.FromMilliseconds(1), 5);
         var serializedYaml = Encoding.UTF8.GetString(encodedData);
 
-        _instance = _deserializer.Deserialize<ZonesStore>(serializedYaml); ;
+        _instance = _deserializer.Deserialize<ZonesStore>(serializedYaml);
     }
 
     internal Task Save()
     {
-        var serializedYaml = _serializer.Serialize(_instance);
-        var encodedData = Encoding.UTF8.GetBytes(serializedYaml);
-
         lock (_lock)
         {
             _writeCounter += 1;
 
             try
             {
-                File.WriteAllBytes(_filePath, encodedData);
+                if (_instance.Zones.Count != 0)
+                {
+                    var serializedYaml = _serializer.Serialize(_instance);
+                    var encodedData = Encoding.UTF8.GetBytes(serializedYaml);
+
+                    File.WriteAllBytes(_filePath, encodedData);
+                }
             }
             catch
             {
@@ -115,7 +121,7 @@ internal sealed class ZonesDataStore
 
             await UniTask.SwitchToMainThread();
 
-            zone.Init();
+            zone.Initialize();
 
             return true;
         }

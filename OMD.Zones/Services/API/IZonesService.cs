@@ -1,18 +1,17 @@
 ﻿using OMD.Zones.Main;
 using OMD.Zones.Models.Zones;
 using OpenMod.API.Ioc;
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace OMD.Zones.Services;
+namespace OMD.Zones.Services.API;
 
 [Service]
 public interface IZonesService
 {
-    public IReadOnlyList<Zone> Zones { get; }
+    public bool IsInitialized { get; }
 
-    public Guid GUID { get; }
+    public IReadOnlyList<Zone> Zones { get; }
 
     Task Initialize(ZonesPlugin plugin);
 
