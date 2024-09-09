@@ -1,4 +1,4 @@
-# OMD.Zones
+﻿# OMD.Zones
 An OpenMod / Unturned plugin which implements optimized zones.
 
 ## Warning

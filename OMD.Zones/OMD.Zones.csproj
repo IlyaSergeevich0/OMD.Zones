@@ -1,31 +1,39 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
-    <PlatformTarget>x64</PlatformTarget>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageTags>openmod openmod-plugin unturned zones</PackageTags>
-    <RootNamespace>OMD.Zones</RootNamespace>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <GenerateNugetPackage>true</GenerateNugetPackage>
     <Product>OMD.Zones</Product>
+    <RootNamespace>OMD.Zones</RootNamespace>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>preview</LangVersion>
+    <PlatformTarget>x64</PlatformTarget>
+
     <Nullable>enable</Nullable>
     <WarningsAsErrors>nullable</WarningsAsErrors>
     <NoWarn>$(NoWarn);NU1701;NU1702;CS0436</NoWarn>
-    <Version>0.7.1</Version>
-    <InformationalVersion>0.7.1</InformationalVersion>
-    <PackageVersion>0.7.1</PackageVersion>
-    <LangVersion>preview</LangVersion>
+
+    <Version>0.8.1</Version>
+    <InformationalVersion>0.8.1</InformationalVersion>
+    <PackageVersion>0.8.1</PackageVersion>
+
+    <PackageReleaseNotes>Initial release</PackageReleaseNotes>
+
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <GenerateNugetPackage>true</GenerateNugetPackage>
+    <PackageId>OMD.Zones</PackageId>
+    <Authors>IlyaSergeevich0</Authors>
+    <Title>OMD.Zones</Title>
+    <Description>An OpenMod / Unturned plugin which implements optimized zones using server-side colliders.</Description>
+    <PackageTags>openmod unturned zones</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageIcon>icon.png</PackageIcon>
+    <RepositoryUrl>https://github.com/IlyaSergeevich0/OMD.Zones</RepositoryUrl>    
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="OMD.Events" Version="1.4.1" />
-    <PackageReference Include="OpenMod.Unturned" Version="3.7.4" />
+    <PackageReference Include="OMD.Events" Version="1.4.2" />
+    <PackageReference Include="OpenMod.Unturned" Version="3.8.10" />
+
+    <None Include="docs\README.md" Pack="true" PackagePath="\" />
+    <None Include="images\icon.png" Pack="true" PackagePath="\" />
   </ItemGroup>
-
-  <Target Name="ChangeAliasesOfNugetRefs" BeforeTargets="FindReferenceAssembliesForReferences;ResolveReferences">
-    <ItemGroup>
-    </ItemGroup>
-  </Target>
-
 </Project>

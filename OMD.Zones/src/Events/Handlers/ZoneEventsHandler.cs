@@ -64,15 +64,15 @@ public sealed class ZoneEventsHandler : EventsHandler
 
     private void Events_OnTeleporting(Player nativePlayer, Vector3 position)
     {
-        Zone enteredZone = null!, exitedZone = null!;
+        Zone exitedZone = null!;
 
         var playerPosition = nativePlayer.transform.position.ToSystemVector();
         var newPosition = position.ToSystemVector();
 
         foreach (var zone in _zonesService.Zones)
         {
-            if (zone.IsPointInside(newPosition))
-                enteredZone = zone;
+            /*if (zone.IsPointInside(newPosition))
+                enteredZone = zone;*/
 
             if (zone.IsPointInside(playerPosition))
                 exitedZone = zone;
@@ -89,7 +89,7 @@ public sealed class ZoneEventsHandler : EventsHandler
 
             Emit(exitedEvent);
         }
-
+        /*
         if (enteredZone is not null)
         {
             var enteredEvent = new UnturnedPlayerEnteredZoneEvent(enteredZone, player);
@@ -99,6 +99,7 @@ public sealed class ZoneEventsHandler : EventsHandler
 
             Emit(enteredEvent);
         }
+        */
     }
 
     // Seems like Animal and Zombie are not being detected by colliders
