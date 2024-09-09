@@ -30,14 +30,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="docs\**" />
-    <EmbeddedResource Remove="docs\**" />
-    <None Remove="docs\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="OMD.Events" Version="1.4.2" />
     <PackageReference Include="OpenMod.Unturned" Version="3.8.10" />
+    
     <None Include="images\icon.png" Pack="true" PackagePath="\" />
   </ItemGroup>
 </Project>
