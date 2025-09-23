@@ -1,7 +1,6 @@
 ﻿using Autofac;
 using HarmonyLib;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using OMD.Events.Models;
 using OMD.Events.Services;
 using OMD.Zones.Events.Models;
@@ -84,8 +83,10 @@ public sealed class ZoneEventsHandler : EventsHandler
         {
             var exitedEvent = new UnturnedPlayerExitedZoneEvent(exitedZone, player);
 
+#if DEBUG
             EventsService.Logger.LogDebug("Player \"{PlayerName}\" ({PlayerSteamId}) has teleported from zone \"{Name}\"",
                 player.SteamPlayer.playerID.characterName, player.SteamId, exitedZone.Name);
+#endif
 
             Emit(exitedEvent);
         }
@@ -114,8 +115,10 @@ public sealed class ZoneEventsHandler : EventsHandler
 
     private void OnTriggered(Zone zone, Collider other, ZoneTriggerType triggerType)
     {
+#if DEBUG
         EventsService.Logger.LogDebug("Something \"{Name}\" | \"{Tag}\" {Type} zone \"{ZoneName}\"",
             other.name, other.tag, triggerType.ToString().ToLowerInvariant(), zone.Name);
+#endif
 
         var nativePlayer = DamageTool.getPlayer(other.transform);
 
