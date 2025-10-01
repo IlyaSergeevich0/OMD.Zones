@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/Docs/">
+    <File Path="Docs/Ideas.md" />
+    <File Path="LICENSE.txt" />
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/Images/">
+    <File Path="Images/icon.png" />
+  </Folder>
+  <Project Path="OMD.Zones/OMD.Zones.csproj" />
+</Solution>

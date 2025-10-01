@@ -1,9 +1,25 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.10.34607.79
+# Visual Studio Version 18
+VisualStudioVersion = 18.0.11018.127
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OMD.Zones", "OMD.Zones\OMD.Zones.csproj", "{50131274-E614-4ACA-8E4F-F2B3829A6280}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{000A873E-AE60-4AAF-AA0F-AAB94406FE31}"
+	ProjectSection(SolutionItems) = preProject
+		OMD.Zones\Docs\Ideas.md = OMD.Zones\Docs\Ideas.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Images", "Images", "{4C8D384C-F0F6-473A-8921-CCF2F152F47D}"
+	ProjectSection(SolutionItems) = preProject
+		Images\icon.png = Images\icon.png
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1A309A97-A4BC-4B7A-BC1B-F22B4A768FC8}"
+	ProjectSection(SolutionItems) = preProject
+		LICENSE.txt = LICENSE.txt
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
