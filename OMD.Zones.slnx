@@ -1,6 +1,5 @@
 <Solution>
   <Folder Name="/Docs/">
-    <File Path="Docs/Ideas.md" />
     <File Path="LICENSE.txt" />
     <File Path="README.md" />
   </Folder>
