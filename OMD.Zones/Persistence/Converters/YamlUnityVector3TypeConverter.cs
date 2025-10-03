@@ -1,17 +1,16 @@
 ﻿using System;
 using System.Globalization;
-using System.Numerics;
 using YamlDotNet.Core;
 using YamlDotNet.Core.Events;
 using YamlDotNet.Serialization;
 
 namespace OMD.Zones.Persistence.Converters;
 
-public sealed class YamlVector3TypeConverter : IYamlTypeConverter
+public sealed class YamlUnityVector3TypeConverter : IYamlTypeConverter
 {
     public bool Accepts(Type type)
     {
-        return type == typeof(Vector3);
+        return type == typeof(UVector3);
     }
 
     public object ReadYaml(IParser parser, Type type)
@@ -32,7 +31,7 @@ public sealed class YamlVector3TypeConverter : IYamlTypeConverter
         var y = float.Parse(parts[1].Trim(), NumberStyles.Float, CultureInfo.InvariantCulture);
         var z = float.Parse(parts[2].Trim(), NumberStyles.Float, CultureInfo.InvariantCulture);
 
-        return new Vector3(x, y, z);
+        return new UVector3(x, y, z);
     }
 
     public void WriteYaml(IEmitter emitter, object? value, Type type)
@@ -40,10 +39,10 @@ public sealed class YamlVector3TypeConverter : IYamlTypeConverter
         if (value is null)
             return;
 
-        var vector3 = (Vector3)value;
-        var xAsString = vector3.X.ToString("0.0000", CultureInfo.InvariantCulture);
-        var yAsString = vector3.Y.ToString("0.0000", CultureInfo.InvariantCulture);
-        var zAsString = vector3.Z.ToString("0.0000", CultureInfo.InvariantCulture);
+        var vector3 = (UVector3)value;
+        var xAsString = vector3.x.ToString("0.0000", CultureInfo.InvariantCulture);
+        var yAsString = vector3.y.ToString("0.0000", CultureInfo.InvariantCulture);
+        var zAsString = vector3.z.ToString("0.0000", CultureInfo.InvariantCulture);
         var vectorAsString = $"{xAsString};{yAsString};{zAsString}";
         var scalar = new Scalar(null, null, vectorAsString, ScalarStyle.Plain, true, false);
 
