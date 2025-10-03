@@ -27,7 +27,7 @@ public abstract class ZonesDisplayer<TZone> : ZoneDisplayer
 
     private void OnZoneUpdated(Zone zone)
     {
-        if (TargetZones.Any(z => z.Name.Equals(zone.Name, StringComparison.Ordinal)))
+        if (TargetZones.Any(z => z.Id== zone.Id))
             Refresh();
     }
 

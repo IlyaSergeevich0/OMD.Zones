@@ -8,16 +8,16 @@ using UnityEngine;
 
 namespace OMD.Zones.Models.Displayers.Single;
 
-public sealed class SphericalZoneEffectDisplayer(UnturnedPlayer targetPlayer, SphericalZone zone, EffectAsset? effectAsset)
-    : ZoneDisplayer<SphericalZone>(targetPlayer, zone)
+public sealed class SphericalZoneEffectDisplayer(UnturnedPlayer targetPlayer, SphereZone zone, EffectAsset? effectAsset)
+    : ZoneDisplayer<SphereZone>(targetPlayer, zone)
 {
     public readonly EffectAsset EffectAsset = effectAsset ??
             throw new ArgumentNullException(nameof(effectAsset));
 
-    public SphericalZoneEffectDisplayer(UnturnedPlayer targetPlayer, SphericalZone zone, ushort effectId)
+    public SphericalZoneEffectDisplayer(UnturnedPlayer targetPlayer, SphereZone zone, ushort effectId)
         : this(targetPlayer, zone, Assets.find(EAssetType.EFFECT, effectId) as EffectAsset) { }
 
-    public SphericalZoneEffectDisplayer(UnturnedPlayer targetPlayer, SphericalZone zone, Guid effectGuid)
+    public SphericalZoneEffectDisplayer(UnturnedPlayer targetPlayer, SphereZone zone, Guid effectGuid)
         : this(targetPlayer, zone, Assets.find(effectGuid) as EffectAsset) { }
 
     protected override void Refresh()
@@ -26,7 +26,7 @@ public sealed class SphericalZoneEffectDisplayer(UnturnedPlayer targetPlayer, Sp
 
         var transportConnection = TargetPlayer.Player.channel.owner.transportConnection;
         var triggerEffectParameters = new TriggerEffectParameters(EffectAsset) {
-            position = TargetZone.Position.ToUnityVector(),
+            position = TargetZone.Center,
             scale = Vector3.one * TargetZone.Radius * ScaleMultiplier
         };
 

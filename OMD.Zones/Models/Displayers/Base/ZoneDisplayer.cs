@@ -32,7 +32,7 @@ public abstract class ZoneDisplayer<TZone> : ZoneDisplayer
 
     private void OnZoneUpdated(Zone zone)
     {
-        if (zone.Name.Equals(TargetZone.Name, StringComparison.Ordinal))
+        if (zone.Id == TargetZone.Id)
             Refresh();
     }
 

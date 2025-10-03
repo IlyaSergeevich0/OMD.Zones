@@ -1,12 +1,5 @@
-﻿using OMD.Zones.Models.Triggers;
-using OpenMod.UnityEngine.Extensions;
-using SDG.Unturned;
-using System;
-using UnityEngine;
+﻿using System;
 using YamlDotNet.Serialization;
-using Object = UnityEngine.Object;
-using Quaternion = System.Numerics.Quaternion;
-using Vector3 = System.Numerics.Vector3;
 
 namespace OMD.Zones.Models.Zones;
 
@@ -14,62 +7,30 @@ public abstract class Zone
 {
     public static event Action<Zone>? OnUpdated;
 
-    [YamlIgnore] public bool IsInitialized => Instance != null;
+    public Guid Id { get; set; }
 
-    public string Name { get; set; }
-
-    public virtual Vector3 Position {
+    public virtual UVector3 Center {
         get {
-            return IsInitialized
-                ? Instance.transform.position.ToSystemVector()
-                : _position;
+            return _center;
         }
         set {
-            _position = value;
-
-            if (!IsInitialized)
-                return;
-
-            Instance.transform.position = _position.ToUnityVector();
+            _center = value;
 
             InvokeOnUpdated();
         }
     }
 
-    public virtual Quaternion Rotation {
-        get {
-            return IsInitialized
-                ? Instance.transform.rotation.ToSystemQuaternion()
-                : _rotation;
-        }
-        set {
-            _rotation = value;
-
-            if (!IsInitialized)
-                return;
-
-            Instance.transform.rotation = _rotation.ToUnityQuaternion();
-
-            InvokeOnUpdated();
-        }
-    }
-
-    [YamlIgnore] protected GameObject Instance = null!;
-
-    [YamlIgnore] private Vector3 _position;
-
-    [YamlIgnore] private Quaternion _rotation;
+    [YamlIgnore] private UVector3 _center;
 
     public Zone()
     {
-        Name = null!;
+        Id = Guid.Empty;
     }
 
-    public Zone(string name, Vector3 position, Quaternion rotation)
+    public Zone(Guid id, UVector3 center)
     {
-        Name = name;
-        _position = position;
-        _rotation = rotation;
+        Id = id;
+        _center = center;
     }
 
     internal void Initialize()
@@ -95,5 +56,5 @@ public abstract class Zone
         OnUpdated?.Invoke(this);
     }
 
-    public abstract bool IsPointInside(Vector3 point);
+    public abstract bool Contains(UVector3 point);
 }

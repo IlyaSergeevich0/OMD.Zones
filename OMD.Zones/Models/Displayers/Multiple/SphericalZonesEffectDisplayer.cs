@@ -9,16 +9,16 @@ using UnityEngine;
 
 namespace OMD.Zones.Models.Displayers.Multiple;
 
-public sealed class SphericalZonesEffectDisplayer(UnturnedPlayer targetPlayer, IEnumerable<SphericalZone> zones, EffectAsset? effectAsset)
-    : ZonesDisplayer<SphericalZone>(targetPlayer, zones)
+public sealed class SphericalZonesEffectDisplayer(UnturnedPlayer targetPlayer, IEnumerable<SphereZone> zones, EffectAsset? effectAsset)
+    : ZonesDisplayer<SphereZone>(targetPlayer, zones)
 {
     public readonly EffectAsset EffectAsset = effectAsset ??
             throw new ArgumentNullException(nameof(effectAsset));
 
-    public SphericalZonesEffectDisplayer(UnturnedPlayer targetPlayer, IEnumerable<SphericalZone> zones, ushort effectId)
+    public SphericalZonesEffectDisplayer(UnturnedPlayer targetPlayer, IEnumerable<SphereZone> zones, ushort effectId)
         : this(targetPlayer, zones, Assets.find(EAssetType.EFFECT, effectId) as EffectAsset) { }
 
-    public SphericalZonesEffectDisplayer(UnturnedPlayer targetPlayer, IEnumerable<SphericalZone> zones, Guid effectGuid)
+    public SphericalZonesEffectDisplayer(UnturnedPlayer targetPlayer, IEnumerable<SphereZone> zones, Guid effectGuid)
         : this(targetPlayer, zones, Assets.find(effectGuid) as EffectAsset) { }
 
     public override void Dispose()
@@ -43,7 +43,7 @@ public sealed class SphericalZonesEffectDisplayer(UnturnedPlayer targetPlayer, I
 
         foreach (var zone in TargetZones)
         {
-            triggerEffectParameters.position = zone.Position.ToUnityVector();
+            triggerEffectParameters.position = zone.Center;
             triggerEffectParameters.scale = Vector3.one * zone.Radius * ScaleMultiplier;
 
             EffectManager.triggerEffect(triggerEffectParameters);
