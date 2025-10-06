@@ -1,5 +1,6 @@
 ﻿using Cysharp.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using OMD.Zones.API;
 using OMD.Zones.Main;
 using OMD.Zones.Models.Zones;
 using OMD.Zones.Persistence;
@@ -7,110 +8,67 @@ using OMD.Zones.Services.API;
 using OpenMod.API.Ioc;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace OMD.Zones.Services.Models;
 
 [ServiceImplementation(Lifetime = ServiceLifetime.Singleton)]
-public sealed class ZonesService : IZonesService, IAsyncDisposable
+public sealed class ZonesService(IEnumerable<IZonesProvider> providers) : IZonesService, IAsyncDisposable
 {
-    public bool IsInitialized { get; private set; }
+    public IEnumerable<IZonesProvider> Providers { get; } = providers;
 
-    public IReadOnlyList<Zone> Zones => _dataStore.Zones;
-
-    private ZonesDataStore _dataStore = null!;
-
-    public Task Initialize(ZonesPlugin plugin)
+    /// <summary>
+    /// Internal API.
+    /// </summary>    
+    public Task Initialize()
     {
-        async UniTask InnerTask()
-        {
-            if (IsInitialized)
-                throw new InvalidOperationException("Service has already been initialized!");
+        // TODO: Setup checking of zones
 
-            _dataStore = new ZonesDataStore(plugin.WorkingDirectory);
-
-            await _dataStore.Load();
-
-            await UniTask.SwitchToMainThread();
-
-            foreach (var zone in _dataStore.Zones)
-                zone.Initialize();
-
-            IsInitialized = true;
-        }
-
-        return InnerTask().AsTask();
+        throw new NotImplementedException();
     }
 
     public async ValueTask DisposeAsync()
     {
-        if (!IsInitialized)
-            return;
+        // TODO: Stop checking of zones
 
-        await _dataStore.Save();
+        throw new NotImplementedException();
     }
 
-    public Task<bool> Add<TZone>(TZone zone)
-        where TZone : Zone
+    public TZone? Find<TZone>(Guid id) where TZone : Zone
     {
-        ThrowExceptionIfNotInitialized();
-
-        return _dataStore.Add(zone);
+        return Find<TZone>(z => z.Id == id);
     }
 
-    public Task<bool> RemoveByName(string name)
+    public bool TryFind<TZone>(Guid id, [NotNullWhen(returnValue: true)] out TZone? zone) where TZone : Zone
     {
-        ThrowExceptionIfNotInitialized();
-
-        return _dataStore.RemoveByName(name);
+        return TryFind(z => z.Id == id, out zone);
     }
 
-    public Task<bool> Remove<TZone>(TZone zone)
-        where TZone : Zone
+    public TZone? Find<TZone>(Predicate<TZone> predicate) where TZone : Zone
     {
-        ThrowExceptionIfNotInitialized();
-
-        return _dataStore.Remove(zone);
+        return GetZonesOfType<TZone>().FirstOrDefault(z => predicate(z));
     }
 
-    public Zone? Find(string name)
+    public bool TryFind<TZone>(Predicate<TZone> predicate, [NotNullWhen(returnValue: true)] out TZone? zone) where TZone : Zone
     {
-        ThrowExceptionIfNotInitialized();
-
-        return _dataStore.Zones.Where(z => z.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
-            .FirstOrDefault();
-    }
-
-    public TZone? Find<TZone>(string name) where TZone : Zone
-    {
-        ThrowExceptionIfNotInitialized();
-
-        return _dataStore.Zones.Where(z => z is TZone && z.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
-            .FirstOrDefault() as TZone;
-    }
-
-    public bool TryFind(string name, out Zone zone)
-    {
-        ThrowExceptionIfNotInitialized();
-
-        zone = Find(name)!;
+        zone = GetZonesOfType<TZone>().FirstOrDefault(z => predicate(z));
 
         return zone is not null;
     }
 
-    public bool TryFind<TZone>(string name, out TZone zone) where TZone : Zone
+    public IEnumerable<TZone> GetZonesOfType<TZone>() where TZone : Zone
     {
-        ThrowExceptionIfNotInitialized();
+        var targetType = typeof(TZone);
 
-        zone = Find<TZone>(name)!;
-
-        return zone is not null;
-    }
-
-    private void ThrowExceptionIfNotInitialized()
-    {
-        if (!IsInitialized)
-            throw new InvalidOperationException("Service is not initialized yet!");
-    }
+        foreach(var provider in Providers)
+        {
+            if (provider.Supports(targetType))
+            {
+                foreach (var zone in provider.Zones.Cast<TZone>())
+                    yield return zone;
+            }
+        }
+    }       
 }
