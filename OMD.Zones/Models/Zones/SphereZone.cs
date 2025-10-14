@@ -19,7 +19,7 @@ public abstract class SphereZone : Zone
 
     public SphereZone() : base() { }
 
-    public SphereZone(Guid id, UVector3 position, float radius)
+    public SphereZone(Guid id, SVector3 position, float radius)
         : base(id, position)
     {
         if (radius <= 0)
@@ -28,11 +28,11 @@ public abstract class SphereZone : Zone
         _radius = radius;
     }
 
-    public sealed override bool Contains(UVector3 point)
+    public sealed override bool Contains(SVector3 point)
     {
         var sqrRadius = _radius * _radius;
         var distance = Center - point;
 
-        return distance.sqrMagnitude <= sqrRadius;
+        return distance.LengthSquared() <= sqrRadius;
     }
 }
