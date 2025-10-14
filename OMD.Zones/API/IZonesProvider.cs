@@ -9,7 +9,15 @@ namespace OMD.Zones.API;
 [Service]
 public interface IZonesProvider
 {
-    public IReadOnlyList<Zone> Zones { get; }
-
     public bool Supports(Type zoneType);
+
+    public Task InitializeAsync();
+
+    public IAsyncEnumerable<Zone> GetZonesAsync();
+
+    public Task AddAsync(Zone zone);
+    public Task RemoveAsync(Zone zone);
+    public Task UpdateAsync(Zone zone);
+    public Task AddRangeAsync(IEnumerable<Zone> zones);
+    public Task RemoveRangeAsync(IEnumerable<Zone> zones);
 }
