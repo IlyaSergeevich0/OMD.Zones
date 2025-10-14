@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <Product>OMD.Zones</Product>
-    <RootNamespace>OMD.Zones</RootNamespace>
+    <RootNamespace>OMD.Zones</RootNamespace>		
     <TargetFramework>netstandard2.1</TargetFramework>
     <LangVersion>preview</LangVersion>
     <PlatformTarget>x64</PlatformTarget>
@@ -11,9 +11,9 @@
     <WarningsAsErrors>nullable</WarningsAsErrors>
     <NoWarn>$(NoWarn);NU1701;NU1702;CS0436</NoWarn>
 
-    <Version>0.8.1</Version>
-    <InformationalVersion>0.8.1</InformationalVersion>
-    <PackageVersion>0.8.1</PackageVersion>
+    <Version>1.0.0-alpha</Version>
+    <InformationalVersion>1.0.0-alpha</InformationalVersion>
+    <PackageVersion>1.0.0-alpha</PackageVersion>
 
     <PackageReleaseNotes>Initial release</PackageReleaseNotes>
 
@@ -30,9 +30,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="OMD.Events" Version="1.4.2" />
-    <PackageReference Include="OpenMod.Unturned" Version="3.8.10" />
-    
-    <None Include="images\icon.png" Pack="true" PackagePath="\" />
+    <PackageReference Include="OpenMod.Unturned" Version="3.8.10" />       
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\images\icon.png" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="config.yaml" />
   </ItemGroup>
 </Project>

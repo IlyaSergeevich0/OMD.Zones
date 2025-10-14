@@ -1,0 +1,22 @@
+# Spatial grid configuration for zone tracking optimization
+# The world is divided into a grid of cells to efficiently track which zones are near players
+grid:
+  # Size of each grid cell in units. 
+  # Larger cells = better performance but less precise zone queries
+  # Smaller cells = more precise queries but higher memory usage
+  # Recommended: 64-256 (default: 128)
+  cellSize: 128
+  
+  # How many adjacent cells to check around a player's position
+  # Higher values = check more cells = find more potential zones but slower performance
+  # Lower values = check fewer cells = better performance but might miss larger zones
+  # Recommended: 1-3 (default: 1)
+  regionRange: 1
+
+# Timing and performance settings  
+delays:
+  # How often to check player positions and zone transitions (in milliseconds)
+  # Lower values = more responsive zone detection but higher CPU usage
+  # Higher values = better performance but delayed zone entry/exit events
+  # Recommended: 50-200 ms (default: 100)
+  tickMilliseconds: 100
