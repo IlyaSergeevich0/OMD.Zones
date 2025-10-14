@@ -1,4 +1,5 @@
-﻿using OMD.Zones.Models.Displayers.Base;
+﻿using Cysharp.Threading.Tasks;
+using OMD.Zones.Models.Displayers.Base;
 using OMD.Zones.Models.Zones;
 using OpenMod.UnityEngine.Extensions;
 using OpenMod.Unturned.Players;
@@ -21,16 +22,18 @@ public sealed class SphericalZonesEffectDisplayer(UnturnedPlayer targetPlayer, I
     public SphericalZonesEffectDisplayer(UnturnedPlayer targetPlayer, IEnumerable<SphereZone> zones, Guid effectGuid)
         : this(targetPlayer, zones, Assets.find(effectGuid) as EffectAsset) { }
 
-    public override void Dispose()
+    protected override async UniTask DisposeAsync()
     {
-        base.Dispose();
+        await base.DisposeAsync();
+
+        await UniTask.SwitchToMainThread();
 
         var transportConnection = TargetPlayer.Player.channel.owner.transportConnection;
 
         EffectManager.ClearEffectByGuid(EffectAsset.GUID, transportConnection);
     }
 
-    protected override void Refresh()
+    protected override async UniTask RefreshAsync()
     {
         const float ScaleMultiplier = 2;
 
@@ -39,11 +42,13 @@ public sealed class SphericalZonesEffectDisplayer(UnturnedPlayer targetPlayer, I
 
         triggerEffectParameters.SetRelevantPlayer(transportConnection);
 
+        await UniTask.SwitchToMainThread();
+
         EffectManager.ClearEffectByGuid(EffectAsset.GUID, transportConnection);
 
         foreach (var zone in TargetZones)
         {
-            triggerEffectParameters.position = zone.Center;
+            triggerEffectParameters.position = zone.Center.ToUnityVector();
             triggerEffectParameters.scale = Vector3.one * zone.Radius * ScaleMultiplier;
 
             EffectManager.triggerEffect(triggerEffectParameters);

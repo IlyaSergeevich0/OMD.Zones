@@ -1,6 +1,6 @@
-﻿using OMD.Zones.Models.Zones;
+﻿using Cysharp.Threading.Tasks;
+using OMD.Zones.Models.Zones;
 using OpenMod.Unturned.Players;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -17,19 +17,38 @@ public abstract class ZonesDisplayer<TZone> : ZoneDisplayer
 
         Refresh();
 
-        Zone.OnUpdated += OnZoneUpdated;
+        Zone.Initialized += OnZoneInitializedOrDestroyed;
+        Zone.Destroyed += OnZoneInitializedOrDestroyed;
+        Zone.Updated += OnZoneUpdated;
     }
 
-    public override void Dispose()
+    protected override UniTask DisposeAsync()
     {
-        Zone.OnUpdated -= OnZoneUpdated;
+        Zone.Initialized -= OnZoneInitializedOrDestroyed;
+        Zone.Destroyed -= OnZoneInitializedOrDestroyed;
+        Zone.Updated -= OnZoneUpdated;
+
+        return UniTask.CompletedTask;
     }
 
     private void OnZoneUpdated(Zone zone)
     {
-        if (TargetZones.Any(z => z.Id== zone.Id))
+        if (TargetZones.Any(z => z.Id == zone.Id))
             Refresh();
     }
 
-    protected abstract void Refresh();
+    private void OnZoneInitializedOrDestroyed(Zone zone)
+    {
+        // Zone might be deleted from/not yet added to target zones (e.g. reference to a list of cached zones)
+        // So we forcing displayer to refresh
+
+        Refresh();
+    }
+
+    public void Refresh()
+    {
+        UniTask.Create(RefreshAsync).Forget();
+    }
+
+    protected abstract UniTask RefreshAsync();
 }

@@ -1,4 +1,5 @@
-﻿using OMD.Zones.Models.Zones;
+﻿using Cysharp.Threading.Tasks;
+using OMD.Zones.Models.Zones;
 using OpenMod.Unturned.Players;
 using System;
 
@@ -8,7 +9,12 @@ public abstract class ZoneDisplayer(UnturnedPlayer targetPlayer) : IDisposable
 {
     public readonly UnturnedPlayer TargetPlayer = targetPlayer;
 
-    public abstract void Dispose();
+    public void Dispose()
+    {
+        UniTask.Create(DisposeAsync).Forget();
+    }
+
+    protected abstract UniTask DisposeAsync();
 }
 
 public abstract class ZoneDisplayer<TZone> : ZoneDisplayer
@@ -22,19 +28,30 @@ public abstract class ZoneDisplayer<TZone> : ZoneDisplayer
 
         Refresh();
 
-        Zone.OnUpdated += OnZoneUpdated;
+        Zone.Initialized += OnZoneStateChanged;
+        Zone.Destroyed += OnZoneStateChanged;
+        Zone.Updated += OnZoneStateChanged;
     }
 
-    public override void Dispose()
+    protected override UniTask DisposeAsync()
     {
-        Zone.OnUpdated -= OnZoneUpdated;
+        Zone.Initialized -= OnZoneStateChanged;
+        Zone.Destroyed -= OnZoneStateChanged;
+        Zone.Updated -= OnZoneStateChanged;
+
+        return UniTask.CompletedTask;
     }
 
-    private void OnZoneUpdated(Zone zone)
+    private void OnZoneStateChanged(Zone zone)
     {
         if (zone.Id == TargetZone.Id)
             Refresh();
     }
 
-    protected abstract void Refresh();
+    public void Refresh()
+    {
+        UniTask.Create(RefreshAsync).Forget();
+    }
+
+    protected abstract UniTask RefreshAsync();
 }
