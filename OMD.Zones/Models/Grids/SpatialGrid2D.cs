@@ -11,19 +11,19 @@ public class SpatialGrid2D<T>(int cellSize)
     private readonly Dictionary<Vector2Int, List<T>> _grid = [];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Vector2Int GetCellCoords(UVector3 position)
+    public Vector2Int GetCellCoords(in UVector3 position)
     {
         return GetCellCoords(position.x, position.z);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Vector2Int GetCellCoords(SVector3 position)
+    public Vector2Int GetCellCoords(in SVector3 position)
     {
         return GetCellCoords(position.X, position.Z);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Vector2Int GetCellCoords(float xPosition, float zPosition)
+    public Vector2Int GetCellCoords(in float xPosition, in float zPosition)
     {
         var xCellCoordinate = (int)Math.Floor(xPosition / _cellSize);
         var yCellCoordinate = (int)Math.Floor(zPosition / _cellSize);
@@ -32,7 +32,7 @@ public class SpatialGrid2D<T>(int cellSize)
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Add(UVector3 position, T value)
+    public void Add(in UVector3 position, in T value)
     {
         var cellCoords = GetCellCoords(position);
 
@@ -40,7 +40,7 @@ public class SpatialGrid2D<T>(int cellSize)
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Add(SVector3 position, T value)
+    public void Add(in SVector3 position, in T value)
     {
         var cellCoords = GetCellCoords(position);
 
@@ -48,7 +48,7 @@ public class SpatialGrid2D<T>(int cellSize)
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Add(float xPosition, float zPosition, T value)
+    public void Add(in float xPosition, in float zPosition, in T value)
     {
         var cellCoords = GetCellCoords(xPosition, zPosition);
 
@@ -56,7 +56,7 @@ public class SpatialGrid2D<T>(int cellSize)
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Remove(UVector3 position, T value)
+    public bool Remove(in UVector3 position, in T value)
     {
         var cellCoords = GetCellCoords(position);
 
@@ -64,7 +64,7 @@ public class SpatialGrid2D<T>(int cellSize)
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Remove(SVector3 position, T value)
+    public bool Remove(in SVector3 position, in T value)
     {
         var cellCoords = GetCellCoords(position);
 
@@ -72,21 +72,49 @@ public class SpatialGrid2D<T>(int cellSize)
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Remove(float xPosition, float zPosition, T value)
+    public bool Remove(in float xPosition, in float zPosition, in T value)
     {
         var cellCoords = GetCellCoords(xPosition, zPosition);
 
         return Remove(ref cellCoords, value);
     }
 
-    public void QueryCandidates(float xPosition, float zPosition, List<T> candidates, int range = 0)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool RemoveRoughly(in T value)
+    {
+        foreach (var list in _grid.Values)
+        {
+            if (list.Remove(value))
+                return true;
+        }
+
+        return false;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void QueryCandidates(in UVector3 position, in HashSet<T> itemsInRegion, in int range = 0)
+    {
+        QueryCandidates(position.x, position.z, itemsInRegion, range);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void QueryRegion(in SVector3 position, in HashSet<T> itemsInRegion, in int range = 0)
+    {
+        QueryCandidates(position.X, position.Z, itemsInRegion, range);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void QueryCandidates(in float xPosition, in float zPosition, in HashSet<T> itemsInRegion, in int range = 0)
     {
         var cellCoords = GetCellCoords(xPosition, zPosition);
 
         if (range == 0)
         {
             if (_grid.TryGetValue(cellCoords, out var list))
-                candidates.AddRange(list);
+            {
+                foreach (var item in list)
+                    itemsInRegion.Add(item);
+            }
 
             return;
         }
@@ -103,7 +131,8 @@ public class SpatialGrid2D<T>(int cellSize)
 
                 if (_grid.TryGetValue(cellCoords, out var list))
                 {
-                    candidates.AddRange(list);
+                    foreach (var item in list)
+                        itemsInRegion.Add(item);
                 }
 
                 cellCoords.x = initialCellX;
@@ -113,7 +142,7 @@ public class SpatialGrid2D<T>(int cellSize)
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void Add(ref Vector2Int cellCoords, T value)
+    private void Add(ref Vector2Int cellCoords, in T value)
     {
         if (!_grid.ContainsKey(cellCoords))
             _grid[cellCoords] = [];
@@ -122,7 +151,7 @@ public class SpatialGrid2D<T>(int cellSize)
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool Remove(ref Vector2Int cellCoords, T value)
+    private bool Remove(ref Vector2Int cellCoords, in T value)
     {
         if (!_grid.TryGetValue(cellCoords, out var list))
             return false;
